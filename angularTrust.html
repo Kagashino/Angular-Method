@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Trust as html</title>
+</head>
+<body ng-app="trust">
+	<div ng-controller="showHtmlCtrl">
+	<!-- {{花括号和指令缺一不可}} -->
+		<p>你将看到：</p>
+		<p ng-bind-html="whattoshow">
+			{{whattoshow}}
+		</p>
+		
+		<p>使用封装的过滤器去信任：</p>
+		<p ng-bind-html="filterShow | ashtml">
+			
+		</p>
+	</div>
+
+	
+</body>
+<script src="angular.js"></script>
+<script>
+	var app = angular.module("trust",[])
+
+	app.controller("showHtmlCtrl",function($scope,$sce){
+		$scope.whattoshow = $sce.trustAsHtml("hello,<br><b>where we go?</b>")
+
+		$scope.filterShow = "hello,<br><b>where we go?</b>"
+	})
+
+	app.filter("ashtml",function($sce){
+		return function(text){
+			return $sce.trustAsHtml(text)
+		}
+	})
+</script>
+</html>

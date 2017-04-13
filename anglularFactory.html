@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="fsp">
+<head>
+	<meta charset="UTF-8">
+	<title>Angular三种提高复用性的方法</title>
+</head>
+<body>
+	<!-- factory模式 -->
+	<div ng-controller="theFactoryCtrl">
+		<h3>Factory模式</h3>
+		<ul>
+			<li ng-repeat="i in names">
+				{{i}}
+			</li>
+		</ul>
+
+	</div>
+
+	<!-- service模式 -->
+	<div ng-controller="theServiceCtrl">
+		<h3>Service模式</h3>
+		<p>prop:{{prop}}</p>
+		<p>num:{{num}}</p>
+	</div>
+
+	<!-- provider模式 -->
+	<div ng-controller="theProviderCtrl">
+		<h3>Provider模式</h3>
+		<p>姓名:{{info.name}}</p>
+		<p>部队:{{info.squad}}</p>
+		<p>职务:{{info.role}}</p>
+	</div>
+</body>
+<script src="angular.js"></script>
+<script>
+	var app = angular.module("fsp", ["ng"])
+
+	app.controller("theFactoryCtrl",function ($scope,myFactory) {
+
+		$scope.names = myFactory.exec("张三的歌","赵四的舞","老王贼六");
+
+	})
+	.controller("theServiceCtrl",function($scope,myService){
+		$scope.prop = myService.prop("呵呵");
+		$scope.num = myService.num;
+	})
+	.controller("theProviderCtrl",function($scope,myProvider){
+		$scope.info = {
+			name : myProvider.name,
+			squad : myProvider.squad,
+			role : myProvider.role
+
+		}
+	})
+
+	/*工厂模式，注入参数中调用的是这个函数里的返回值*/
+	app.factory("myFactory",function(){
+
+		var args = arguments;
+		var obj = {}
+
+		obj.exec = function(){
+			var arr = [];
+			for(let i = 0; i<arguments.length; i++){
+				arr.push(arguments[i]);
+			}
+			return arr;
+		}
+
+		return obj;
+	})
+
+	/*Service是new出来的，所以可以直接调用里面的属性*/
+	app.service("myService",function(){
+		this.num = Math.floor(Math.random()*10);
+		this.prop = function(arg){
+			return arg;
+		};
+	})
+
+	/*使用$get方法关联对应的config*/
+	app.provider("myProvider",function(){
+		
+		this.$get = function(){
+			console.log(this.roleSet)
+			return {
+				name : "朱子明",
+				squad : "八路军386旅独立团",
+				role : this.roleSet
+				
+			}
+		}
+
+	})
+	/*名字必须符合规范：xxxxxxProvider*/
+	app.config(function(myProviderProvider){
+		myProviderProvider.roleSet = "保卫干事"
+	})
+</script>
+</html>
